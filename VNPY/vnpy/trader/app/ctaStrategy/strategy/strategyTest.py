@@ -145,7 +145,7 @@ class testStrategy(CtaTemplate):
                 self.buy(bar.close + 10, self.fixedSize)
             elif self.pos <0:
                 print '平空仓开多仓'
-                self.cover(bar.close + 10, abs(self.pos))
+                self.cover(bar.close + 10, self.fixedSize)
                 self.buy(bar.close + 10, self.fixedSize)
         elif DkArray[-1] < MadkArray[-1]:
             if self.pos == 0:
@@ -153,7 +153,7 @@ class testStrategy(CtaTemplate):
                 self.short(bar.close - 10, self.fixedSize)
             elif self.pos>0:
                 print '平多仓开空仓'
-                self.sell(bar.close - 10, abs(self.pos))
+                self.sell(bar.close - 10, self.fixedSize)
                 self.short(bar.close - 10, self.fixedSize)
 
 

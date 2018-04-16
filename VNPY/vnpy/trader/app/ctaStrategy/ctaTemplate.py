@@ -601,7 +601,22 @@ class ArrayManager(object):
         if array:
             return up, down
         return up[-1], down[-1]
-    
+
+
+    def madk_ema(self,dkMaPara, midEmaPara, array=False):
+        if np.isnan(self.close).all() or np.isnan(self.open).all() or np.isnan(self.high).all() or np.isnan(self.low).all():
+            return np.full(self.close.shape,np.nan),np.full(self.close.shape,np.nan)
+        else:
+            MID = (self.close*3.0+self.open+self.high+self.low)/6.0
+            #print MID
+            DK = talib.EMA(MID, midEmaPara)
+            if np.isnan(DK).all():
+                return DK, np.full(DK.shape, np.nan)
+            else:
+                MADK = talib.SMA(DK, dkMaPara)
+                #是不是close等长度不够导致DK长度不够最后导致MADK一直计算有问题？
+                return DK, MADK
+
 
 ########################################################################
 class CtaSignal(object):
