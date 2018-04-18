@@ -28,6 +28,7 @@ def processErrorEvent(event):
     
 #----------------------------------------------------------------------
 def runChildProcess():
+    from datetime import datetime
     """子进程运行函数"""
     print '-'*20
     
@@ -67,7 +68,10 @@ def runChildProcess():
     
     cta.startAll()
     le.info(u'CTA策略启动成功')
-    
+    #保存下合约信息
+    me.dataEngine.saveContracts()
+    print '--------------合约信息保存成功---------------'
+
     while True:
         sleep(1)
 
@@ -118,7 +122,7 @@ def runParentProcess():
 
 
 if __name__ == '__main__':
-    runChildProcess()
+    #runChildProcess()
     
     # 尽管同样实现了无人值守，但强烈建议每天启动时人工检查，为自己的PNL负责
-    #runParentProcess()
+    runParentProcess()

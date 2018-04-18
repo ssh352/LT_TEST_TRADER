@@ -22,6 +22,8 @@ def processErrorEvent(event):
 
 #----------------------------------------------------------------------
 def runChildProcess():
+    from datetime import datetime
+
     """子进程运行函数"""
     print '-'*20
 
