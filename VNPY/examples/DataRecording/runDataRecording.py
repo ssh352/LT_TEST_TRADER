@@ -61,9 +61,9 @@ def runParentProcess():
     le.info(u'启动行情记录守护父进程')
     
     DAY_START = time(8, 57)         # 日盘启动和停止时间
-    DAY_END = time(15, 18)
+    DAY_END = time(15, 7)
     NIGHT_START = time(20, 57)      # 夜盘启动和停止时间
-    NIGHT_END = time(2, 33)
+    NIGHT_END = time(23, 35)
     
     p = None        # 子进程句柄
 
@@ -73,15 +73,19 @@ def runParentProcess():
 
         # 判断当前处于的时间段
         if ((currentTime >= DAY_START and currentTime <= DAY_END) or
-            (currentTime >= NIGHT_START) or
-            (currentTime <= NIGHT_END)):
+            (currentTime >= NIGHT_START and currentTime <= NIGHT_END)):
             recording = True
             
         # 过滤周末时间段：周六全天，周五夜盘，周日日盘
-        if ((datetime.today().weekday() == 6) or 
-            (datetime.today().weekday() == 5 and currentTime > NIGHT_END) or 
-            (datetime.today().weekday() == 0 and currentTime < DAY_START)):
+        # if ((datetime.today().weekday() == 6) or
+        #     (datetime.today().weekday() == 5 and currentTime > NIGHT_END) or
+        #     (datetime.today().weekday() == 0 and currentTime < DAY_START)):
+        #     recording = False
+        #不考虑超过三小时的夜盘
+        if ((datetime.today().weekday() == 6) or
+            (datetime.today().weekday() == 5)):
             recording = False
+
 
         # 记录时间则需要启动子进程
         if recording and p is None:
