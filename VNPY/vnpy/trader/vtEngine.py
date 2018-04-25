@@ -631,7 +631,7 @@ class LogEngine(object):
     def __init__(self):
         """Constructor"""
         self.logger = logging.getLogger()        
-        self.formatter = logging.Formatter('%(asctime)s  %(levelname)s: %(message)s')
+        self.formatter = logging.Formatter('%(asctime)s--%(levelname)s--%(message)s')
         self.level = self.LEVEL_CRITICAL
         
         self.consoleHandler = None

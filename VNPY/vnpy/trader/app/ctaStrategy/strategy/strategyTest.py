@@ -105,8 +105,6 @@ class testStrategy(CtaTemplate):
 
     #----------------------------------------------------------------------
     def onBar(self, bar):
-        print 'GET BAR----TEST-----'
-        #print bar
         """收到Bar推送（必须由用户继承实现）"""
         self.cancelAll()
 
@@ -118,93 +116,28 @@ class testStrategy(CtaTemplate):
 
         # 计算指标数值
         DkArray,MadkArray = am.madk_ema(self.dkMaPara,self.midEmaPara, array=True)
-        # self.DkValue = DkArray[-1]
-        # self.atrMa = MadkArray[-1]
-        # 判断是否要进行交易
-        
-        # 当前无仓位
-        print '------最新指标------',DkArray[-1],MadkArray[-1]
-        # if DkArray[-2] < MadkArray[-2] and  DkArray[-1] > MadkArray[-1]:
-        #     print '开多仓'
-        #     if self.pos >= 0:
-        #         self.buy(bar.close + 5, self.fixedSize)
-        #     else:
-        #         self.cover(bar.close + 5, abs(self.pos))
-        #         self.buy(bar.close + 5, self.fixedSize)
-        # elif DkArray[-2] > MadkArray[-2] and  DkArray[-1] < MadkArray[-1]:
-        #     print '开空仓'
-        #     if self.pos <= 0:
-        #         self.short(bar.close - 5, self.fixedSize)
-        #     else:
-        #         self.sell(bar.close - 5, abs(self.pos))
-        #         self.short(bar.close - 5, self.fixedSize)
-
-        if DkArray[-1] > MadkArray[-1]:
-            if self.pos == 0:
-                print '开多仓'
-                self.buy(bar.close + 10, self.fixedSize)
-            elif self.pos <0:
-                print '平空仓开多仓'
-                self.cover(bar.close + 10, abs(self.pos))
-                self.buy(bar.close + 10, self.fixedSize)
-        elif DkArray[-1] < MadkArray[-1]:
-            if self.pos == 0:
-                print '开空仓'
-                self.short(bar.close - 10, self.fixedSize)
-            elif self.pos>0:
-                print '平多仓开空仓'
-                self.sell(bar.close - 10, abs(self.pos))
-                self.short(bar.close - 10, self.fixedSize)
-
-
-
-
-
-
-
-
-
-
-        # if self.pos == 0:
-        #     self.intraTradeHigh = bar.high
-        #     self.intraTradeLow = bar.low
-        #
-        #     # ATR数值上穿其移动平均线，说明行情短期内波动加大
-        #     # 即处于趋势的概率较大，适合CTA开仓
-        #     if self.atrValue > self.atrMa:
-        #         # 使用RSI指标的趋势行情时，会在超买超卖区钝化特征，作为开仓信号
-        #         if self.rsiValue > self.rsiBuy:
-        #             # 这里为了保证成交，选择超价5个整指数点下单
-        #             self.buy(bar.close+5, self.fixedSize)
-        #
-        #         elif self.rsiValue < self.rsiSell:
-        #             self.short(bar.close-5, self.fixedSize)
-        #
-        # # 持有多头仓位
-        # elif self.pos > 0:
-        #     # 计算多头持有期内的最高价，以及重置最低价
-        #     self.intraTradeHigh = max(self.intraTradeHigh, bar.high)
-        #     self.intraTradeLow = bar.low
-        #
-        #     # 计算多头移动止损
-        #     longStop = self.intraTradeHigh * (1-self.trailingPercent/100)
-        #
-        #     # 发出本地止损委托
-        #     self.sell(longStop, abs(self.pos), stop=True)
-        #
-        # # 持有空头仓位
-        # elif self.pos < 0:
-        #     self.intraTradeLow = min(self.intraTradeLow, bar.low)
-        #     self.intraTradeHigh = bar.high
-        #
-        #     shortStop = self.intraTradeLow * (1+self.trailingPercent/100)
-        #     self.cover(shortStop, abs(self.pos), stop=True)
-
-        # 同步数据到数据库
-        self.saveSyncData()
-
-        # 发出状态更新事件
-        self.putEvent()
+        if self.trading:
+            # 判断是否要进行交易
+            if DkArray[-1] > MadkArray[-1]:
+                if self.pos == 0:
+                    self.writeCtaLog(u'--%s策略模块--开多仓信号'%self.name)
+                    self.buy(bar.close + 10, self.fixedSize)
+                elif self.pos <0:
+                    self.writeCtaLog(u'--%s策略模块--平空仓开多仓信号'%self.name)
+                    self.cover(bar.close + 10, abs(self.pos))
+                    self.buy(bar.close + 10, self.fixedSize)
+            elif DkArray[-1] < MadkArray[-1]:
+                if self.pos == 0:
+                    self.writeCtaLog(u'--%s策略模块--开空仓信号'%self.name)
+                    self.short(bar.close - 10, self.fixedSize)
+                elif self.pos>0:
+                    self.writeCtaLog(u'--%s策略模块--平多仓开空仓信号'%self.name)
+                    self.sell(bar.close - 10, abs(self.pos))
+                    self.short(bar.close - 10, self.fixedSize)
+            # 同步数据到数据库
+            self.saveSyncData()
+            # 发出状态更新事件
+            self.putEvent()
 
     #----------------------------------------------------------------------
     def onOrder(self, order):
