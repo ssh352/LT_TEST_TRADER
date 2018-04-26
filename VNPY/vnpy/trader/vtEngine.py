@@ -56,6 +56,8 @@ class MainEngine(object):
         self.logEngine = None
         self.initLogEngine()
 
+        self.dataEngine.logEngine = self.logEngine
+
     #----------------------------------------------------------------------
     def addGateway(self, gatewayModule):
         """添加底层接口"""
@@ -413,6 +415,8 @@ class DataEngine(object):
         
         # 注册事件监听
         self.registerEvent()
+
+        self.logEngine = None
     
     #----------------------------------------------------------------------
     def registerEvent(self):
@@ -470,8 +474,9 @@ class DataEngine(object):
     
         # 更新到持仓细节中
         detail = self.getPositionDetail(pos.vtSymbol)
-        detail.updatePosition(pos)                
-        
+        detail.updatePosition(pos)
+        if self.logEngine:
+            self.logEngine.info('--账户盈亏--'+str(detail.longPnl)+'--'+str(detail.shortPnl))
     #----------------------------------------------------------------------
     def processAccountEvent(self, event):
         """处理账户事件"""
