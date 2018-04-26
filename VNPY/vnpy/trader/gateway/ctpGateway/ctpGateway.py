@@ -250,7 +250,12 @@ class CtpMdApi(MdApi):
         self.tradingDt = None               # 交易日datetime对象
         self.tradingDate = EMPTY_STRING     # 交易日期字符串
         self.tickTime = None                # 最新行情time对象
-        
+
+        #---------------------------
+        self.lastTickDic = {}
+        #---------------------------
+
+
     #----------------------------------------------------------------------
     def onFrontConnected(self):
         """服务器连接"""
@@ -355,6 +360,18 @@ class CtpMdApi(MdApi):
         symbol = data['InstrumentID']
         if symbol not in symbolExchangeDict:
             return
+
+
+        #--------------------------------
+        if (data['AskPrice1']==0 or data['LastPrice']==0) and symbol not in self.lastTickDic.keys():
+            return
+        #--------------------------------
+
+
+
+
+
+
         
         # 创建对象
         tick = VtTickData()
@@ -400,7 +417,21 @@ class CtpMdApi(MdApi):
             tick.date = self.tradingDate    # 使用本地维护的日期
             
             self.tickTime = newTime         # 更新上一个tick时间
-        
+
+
+        #------------------------------------------
+        if data['LastPrice']==0:
+            lastTick = self.lastTickDic[symbol]
+            tick.lastPrice = lastTick.lastPrice
+            tick.volume = lastTick.volume
+            tick.openInterest = lastTick.openInterest
+            if data['AskPrice1']==0:
+                tick.bidPrice1 = tick.bidPrice1
+                tick.bidVolume1 = tick.bidVolume1
+                tick.askPrice1 = tick.askPrice1
+                tick.askVolume1 = tick.askVolume1
+        self.lastTickDic[symbol] = tick
+        #------------------------------------------
         self.gateway.onTick(tick)
         
     #---------------------------------------------------------------------- 
