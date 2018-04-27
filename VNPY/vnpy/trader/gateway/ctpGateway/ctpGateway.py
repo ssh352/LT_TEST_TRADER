@@ -420,16 +420,17 @@ class CtpMdApi(MdApi):
 
 
         #------------------------------------------
-        if int(data['LastPrice'])==0:
+        if symbol in self.lastTickDic.keys():
             lastTick = self.lastTickDic[symbol]
-            tick.lastPrice = lastTick.lastPrice
-            tick.volume = lastTick.volume
-            tick.openInterest = lastTick.openInterest
-        if int(data['AskPrice1'])==0:
-            tick.bidPrice1 = tick.bidPrice1
-            tick.bidVolume1 = tick.bidVolume1
-            tick.askPrice1 = tick.askPrice1
-            tick.askVolume1 = tick.askVolume1
+            if int(data['LastPrice'])==0:
+                tick.lastPrice = lastTick.lastPrice
+                tick.volume = lastTick.volume
+                tick.openInterest = lastTick.openInterest
+            if int(data['AskPrice1'])==0:
+                tick.bidPrice1 = lastTick.bidPrice1
+                tick.bidVolume1 = lastTick.bidVolume1
+                tick.askPrice1 = lastTick.askPrice1
+                tick.askVolume1 = lastTick.askVolume1
         self.lastTickDic[symbol] = tick
         #------------------------------------------
         self.gateway.onTick(tick)
