@@ -1,7 +1,7 @@
 [
     {
-        "name": "test strategy",
-        "className": "testStrategy",
-        "vtSymbol": "hc1805"
+        "name": "smaTradeStrategy",
+        "className": "smaTradeStrategy",
+        "vtSymbol": "hc1901"
     }
 ]

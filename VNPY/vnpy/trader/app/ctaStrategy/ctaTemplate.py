@@ -617,6 +617,24 @@ class ArrayManager(object):
                 #是不是close等长度不够导致DK长度不够最后导致MADK一直计算有问题？
                 return DK, MADK
 
+    def sma_dif(self,fastSmaPara,slowSmaPara,difSmaPara, array=False):
+        if np.isnan(self.close).all() or np.isnan(self.open).all() or np.isnan(self.high).all() or np.isnan(self.low).all():
+            return np.full(self.close.shape,np.nan),np.full(self.close.shape,np.nan)
+        else:
+            MID = (self.close * 3.0 + self.open + self.high + self.low) / 6.0
+            MID_FAST = talib.SMA(MID, fastSmaPara)
+            MID_SLOW = talib.SMA(MID, slowSmaPara)
+
+            DIF = MID_FAST-MID_SLOW
+            if np.isnan(DIF).all():
+                return np.full(DIF.shape, np.nan),np.full(DIF.shape, np.nan)
+            else:
+                DIF_SMA = talib.SMA(DIF,difSmaPara)
+                return DIF,DIF_SMA
+
+
+
+
 
 ########################################################################
 class CtaSignal(object):
