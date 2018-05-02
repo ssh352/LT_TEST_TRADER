@@ -430,7 +430,7 @@ class CtaEngine(object):
             strategy = self.strategyDict[name]
             
             if not strategy.inited:
-                strategy.inited = True
+                #strategy.inited = True
                 self.callStrategyFunc(strategy, strategy.onInit)
                 self.loadSyncData(strategy)                             # 初始化完成后加载同步数据
                 self.subscribeMarketData(strategy)                      # 加载同步数据后再订阅行情
