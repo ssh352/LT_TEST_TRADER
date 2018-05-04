@@ -1,7 +1,7 @@
 [
     {
-        "name": "smaTradeStrategy",
-        "className": "smaTradeStrategy",
-        "vtSymbol": "hc1901"
+        "name": "HFStrategy",
+        "className": "HFStrategy",
+        "vtSymbol": "OI809"
     }
 ]

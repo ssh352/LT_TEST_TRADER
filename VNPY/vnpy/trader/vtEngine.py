@@ -475,8 +475,8 @@ class DataEngine(object):
         # 更新到持仓细节中
         detail = self.getPositionDetail(pos.vtSymbol)
         detail.updatePosition(pos)
-        if self.logEngine:
-            self.logEngine.info('--账户盈亏--'+str(detail.longPnl)+'--'+str(detail.shortPnl))
+        # if self.logEngine:
+        #     self.logEngine.info('--账户盈亏--'+str(detail.longPnl)+'--'+str(detail.shortPnl))
     #----------------------------------------------------------------------
     def processAccountEvent(self, event):
         """处理账户事件"""

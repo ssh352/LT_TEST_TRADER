@@ -3,16 +3,21 @@
 
     "tick":
     [
-        ["hc1901", "CTP"]
+        ["hc1810", "CTP"],
+        ["hc1901", "CTP"],
+        ["OI809", "CTP"]
     ],
 
     "bar":
     [
-        ["hc1901", "CTP"]
+        ["hc1810", "CTP"],
+        ["hc1901", "CTP"],
+        ["OI809", "CTP"]
     ],
 
     "active":
     {
-        "hc.HOT": "hc1901"
+        "hc.HOT": "hc1810",
+        "OI.HOT": "OI809"
     }
 }
