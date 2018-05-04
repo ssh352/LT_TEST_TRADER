@@ -146,24 +146,23 @@ class HFStrategy(CtaTemplate):
 
         if self.trading and self.inited:
             # 判断是否要进行交易
-
-
-
             if self.CLOSE_SMA[-1] > self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] <self.CLOSE_SMA[-3]:
-                self.cancelAll()
                 if self.pos == 0:
+                    self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--开多仓信号'%self.name)
                     self.buy(bar.close, self.fixedSize)
                 elif self.pos <0:
+                    self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--平空仓开多仓信号'%self.name)
                     self.cover(bar.close, abs(self.pos))
                     self.buy(bar.close, self.fixedSize)
             elif self.CLOSE_SMA[-1] < self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] > self.CLOSE_SMA[-3]:
-                self.cancelAll()
                 if self.pos == 0:
+                    self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--开空仓信号'%self.name)
                     self.short(bar.close, self.fixedSize)
                 elif self.pos>0:
+                    self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--平多仓开空仓信号'%self.name)
                     self.sell(bar.close, abs(self.pos))
                     self.short(bar.close, self.fixedSize)
