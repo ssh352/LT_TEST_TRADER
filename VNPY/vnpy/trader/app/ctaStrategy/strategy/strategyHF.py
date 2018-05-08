@@ -111,17 +111,31 @@ class HFStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def onBar(self, bar):
         """收到Bar推送（必须由用户继承实现）"""
+        tmp = self.ctaEngine.mainEngine.dataEngine.getAllPositions()
+        countPos = 0
+        countPnl = 0
+        if tmp:
+            for i in tmp:
+                if i.direction == u'空' and i.symbol==self.vtSymbol:
+                    countPos = countPos - i.position
+                    countPnl = countPnl + i.positionProfit
+                if i.direction == u'多' and i.symbol==self.vtSymbol:
+                    countPos = countPos+i.position
+                    countPnl = countPnl + i.positionProfit
+        #print countPos,countPnl
+
         self.count += 1
         if not self.inited and self.count >= self.size:
             self.inited = True
 
-        if bar.datetime.time()>datetime(2018,5,4,14,55).time():
+        if bar.datetime.time()>=datetime(2018,5,4,14,55).time() and bar.datetime.time()<datetime(2018,5,4,17,55).time():
             print '----强制平仓------'
             self.cancelAll()
-            if self.pos < 0:
-                self.cover(bar.close+1, abs(self.pos))
-            elif self.pos > 0:
-                self.sell(bar.close-1, abs(self.pos))
+            if countPos < 0:
+                self.cover(bar.close+1, abs(countPos))
+            elif countPos > 0:
+                self.sell(bar.close-1, abs(countPos))
+            return
 
 
 
@@ -137,7 +151,7 @@ class HFStrategy(CtaTemplate):
         else:
             self.CLOSE_SMA[-1] = self.CLOSE[-1]
 
-        print self.CLOSE_SMA[-1],self.CLOSE[-1],self.inited,self.count,self.pos,self.trading
+        print self.CLOSE_SMA[-1],self.CLOSE[-1],self.inited,self.count,countPos,self.trading
         if self.CLOSE_SMA[-1] < self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] > self.CLOSE_SMA[-3]:
             print'-------------------交叉空头-------------------'
         elif self.CLOSE_SMA[-1] > self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] < self.CLOSE_SMA[-3]:
@@ -146,25 +160,25 @@ class HFStrategy(CtaTemplate):
 
         if self.trading and self.inited:
             # 判断是否要进行交易
-            if self.CLOSE_SMA[-1] > self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] <self.CLOSE_SMA[-3]:
-                if self.pos == 0:
+            if self.CLOSE_SMA[-1] < self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] >self.CLOSE_SMA[-3]:
+                if countPos == 0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--开多仓信号'%self.name)
                     self.buy(bar.close, self.fixedSize)
-                elif self.pos <0:
+                elif countPos <0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--平空仓开多仓信号'%self.name)
-                    self.cover(bar.close, abs(self.pos))
+                    self.cover(bar.close, abs(countPos))
                     self.buy(bar.close, self.fixedSize)
-            elif self.CLOSE_SMA[-1] < self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] > self.CLOSE_SMA[-3]:
-                if self.pos == 0:
+            elif self.CLOSE_SMA[-1] > self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] < self.CLOSE_SMA[-3]:
+                if countPos == 0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--开空仓信号'%self.name)
                     self.short(bar.close, self.fixedSize)
-                elif self.pos>0:
+                elif countPos>0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--平多仓开空仓信号'%self.name)
-                    self.sell(bar.close, abs(self.pos))
+                    self.sell(bar.close, abs(countPos))
                     self.short(bar.close, self.fixedSize)
 
 
