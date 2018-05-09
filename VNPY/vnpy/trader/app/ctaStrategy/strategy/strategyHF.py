@@ -106,81 +106,63 @@ class HFStrategy(CtaTemplate):
     #----------------------------------------------------------------------
     def onTick(self, tick):
         """收到行情TICK推送（必须由用户继承实现）"""
+        if self.trading:
+            print '----onTick-----',tick.datetime.time(),datetime.now().time()
         self.bg.updateTick(tick)
 
     #----------------------------------------------------------------------
     def onBar(self, bar):
         """收到Bar推送（必须由用户继承实现）"""
-        tmp = self.ctaEngine.mainEngine.dataEngine.getAllPositions()
-        countPos = 0
-        countPnl = 0
-        if tmp:
-            for i in tmp:
-                if i.direction == u'空' and i.symbol==self.vtSymbol:
-                    countPos = countPos - i.position
-                    countPnl = countPnl + i.positionProfit
-                if i.direction == u'多' and i.symbol==self.vtSymbol:
-                    countPos = countPos+i.position
-                    countPnl = countPnl + i.positionProfit
-        #print countPos,countPnl
-
+        #判断是否满足初始化条件
         self.count += 1
         if not self.inited and self.count >= self.size:
             self.inited = True
-
-        if bar.datetime.time()>=datetime(2018,5,4,14,55).time() and bar.datetime.time()<datetime(2018,5,4,17,55).time():
-            print '----强制平仓------'
-            self.cancelAll()
-            if countPos < 0:
-                self.cover(bar.close+1, abs(countPos))
-            elif countPos > 0:
-                self.sell(bar.close-1, abs(countPos))
-            return
-
-
-
-
-
         # 计算指标数值
         self.CLOSE[0:self.size - 1] = self.CLOSE[1:self.size]
         self.CLOSE_SMA[0:self.size - 1] = self.CLOSE_SMA[1:self.size]
         self.CLOSE[-1] = bar.close
-
         if self.count>1:
             self.CLOSE_SMA[-1] = (self.CLOSE_SMA[-2]*(self.smaPara-1.0)+ self.CLOSE[-1])/self.smaPara
         else:
             self.CLOSE_SMA[-1] = self.CLOSE[-1]
-
-        print self.CLOSE_SMA[-1],self.CLOSE[-1],self.inited,self.count,countPos,self.trading
-        if self.CLOSE_SMA[-1] < self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] > self.CLOSE_SMA[-3]:
-            print'-------------------交叉空头-------------------'
-        elif self.CLOSE_SMA[-1] > self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] < self.CLOSE_SMA[-3]:
-            print'-------------------交叉多头-------------------'
-
-
+        # 判断是否要进行交易
         if self.trading and self.inited:
-            # 判断是否要进行交易
+            # 获取持仓与盈亏
+            countPos, countPnl = self.ctaEngine.mainEngine.dataEngine.getPositionsAndPnlSum(self.vtSymbol)
+            # 判断是否盘末需要强平
+            if bar.datetime.time() >= datetime(2018, 5, 4, 14, 55).time() and bar.datetime.time() < datetime(2018, 5, 4,17,55).time():
+                print '----强制平仓------'
+                self.cancelAll()
+                if countPos < 0:
+                    self.cover(bar.close + 1, abs(countPos))
+                elif countPos > 0:
+                    self.sell(bar.close - 1, abs(countPos))
+                return
+            #判断交易信号
             if self.CLOSE_SMA[-1] < self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] >self.CLOSE_SMA[-3]:
                 if countPos == 0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--开多仓信号'%self.name)
+                    return
                     self.buy(bar.close, self.fixedSize)
                 elif countPos <0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--平空仓开多仓信号'%self.name)
+                    return
                     self.cover(bar.close, abs(countPos))
                     self.buy(bar.close, self.fixedSize)
             elif self.CLOSE_SMA[-1] > self.CLOSE_SMA[-2] and self.CLOSE_SMA[-2] < self.CLOSE_SMA[-3]:
                 if countPos == 0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--开空仓信号'%self.name)
+                    return
                     self.short(bar.close, self.fixedSize)
                 elif countPos>0:
                     self.cancelAll()
                     self.writeCtaLog(u'--%s策略模块--平多仓开空仓信号'%self.name)
+                    return
                     self.sell(bar.close, abs(countPos))
                     self.short(bar.close, self.fixedSize)
-
 
             # 同步数据到数据库
             self.saveSyncData()

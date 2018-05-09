@@ -597,8 +597,8 @@ class CtaEngine(object):
         self.mainEngine.dbUpdate(POSITION_DB_NAME, strategy.className,
                                  d, flt, True)
         
-        content = u'--%s策略模块--策略持仓%s' %(strategy.name, strategy.pos)
-        self.writeCtaLog(content)
+        #content = u'--%s策略模块--策略持仓%s' %(strategy.name, strategy.pos)
+        #self.writeCtaLog(content)
     
     #----------------------------------------------------------------------
     def loadSyncData(self, strategy):

@@ -552,6 +552,21 @@ class DataEngine(object):
     def getAllPositions(self):
         """获取所有持仓"""
         return self.positionDict.values()
+
+    def getPositionsAndPnlSum(self,vtSymbol):
+        """获取账户持仓与账户盈亏"""
+        tmp = self.positionDict.values()
+        countPos = 0
+        countPnl = 0
+        if tmp:
+            for i in tmp:
+                if i.direction == u'空' and i.symbol == vtSymbol:
+                    countPos = countPos - i.position
+                    countPnl = countPnl + i.positionProfit
+                if i.direction == u'多' and i.symbol == vtSymbol:
+                    countPos = countPos + i.position
+                    countPnl = countPnl + i.positionProfit
+        return countPos,countPnl
     
     #----------------------------------------------------------------------
     def getAllAccounts(self):
